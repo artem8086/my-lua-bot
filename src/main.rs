@@ -2,6 +2,7 @@ use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use serde::Deserialize;
 
 use std::env;
+use std::ffi::OsString;
 
 mod lua;
 
@@ -21,9 +22,11 @@ async fn index(lua: web::Json<LuaCode>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let port = env::vars()
+    let port = env::vars_os()
         .find(|(name, _)| name.eq("PORT"))
-        .unwrap_or((String::from("PORT"), String::from("8088"))).1;
+        .map(|(_, value)| value)
+        .unwrap_or(OsString::from("8088"))
+        .to_str().unwrap_or("8088");
 
     println!("Server run at port: {}", port);
 
