@@ -11,7 +11,12 @@ struct LuaCode {
 }
 
 async fn index(lua: web::Json<LuaCode>) -> impl Responder {
-    HttpResponse::Ok().json(lua::exec(&lua.code))
+    let result = lua::exec(&lua.code);
+    if result.have_error() {
+        HttpResponse::BadRequest().json(result)
+    } else {
+        HttpResponse::Ok().json(result)
+    }
 }
 
 #[actix_web::main]
