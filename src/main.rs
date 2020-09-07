@@ -1,7 +1,15 @@
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use serde::Deserialize;
 
-async fn index() -> impl Responder {
-    HttpResponse::Ok().body("Hello from lua bot!")
+mod lua;
+
+#[derive(Deserialize)]
+struct LuaCode {
+    code: String
+}
+
+async fn index(lua: web::Json<LuaCode>) -> impl Responder {
+    HttpResponse::Ok().json(lua::exec(&lua.code))
 }
 
 #[actix_web::main]
