@@ -32,7 +32,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .route("/", web::get().to(index))
     })
-        .bind(format!("localhost:{}", port))?
+        .bind(format!("127.0.0.1:{}", port))?
         .run()
         .await
 }
