@@ -20,7 +20,9 @@ pub fn exec(lua_code: &str) -> LuaResult {
     let mut result = String::new();
     let mut error = false;
     lua.context(|ctx| {
-        let res = ctx.load(lua_code).eval::<String>();
+        let res = ctx.load(lua_code)
+            .set_name("lua-bot")
+            .and_then(|chunk| chunk.eval::<String>());
         match res {
             Ok(res) => { result.push_str(&res); }
             Err(err) => {
