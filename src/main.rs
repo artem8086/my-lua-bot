@@ -1,12 +1,12 @@
-mod routes;
-mod lua;
-mod config;
-
 use actix_web::{web, App, HttpServer};
 
 use std::env;
 
 use self::config::AppConfig;
+
+mod routes;
+mod lua;
+mod config;
 
 pub struct AppData {
     config: AppConfig
@@ -36,8 +36,8 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .data(app_data.clone())
-            .service(routes::service())
+            .app_data(app_data.clone())
+            .configure(routes::configure)
     })
         .bind(format!("0.0.0.0:{}", port))?
         .run()

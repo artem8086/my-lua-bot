@@ -1,8 +1,10 @@
-pub mod vk_bot;
-
 use actix_web::{web, HttpResponse, Responder};
 use serde::{Serialize, Deserialize};
 use actix_web::dev::HttpServiceFactory;
+use std::borrow::Borrow;
+use actix_web::web::{Data, ServiceConfig};
+
+pub mod vk_bot;
 
 #[derive(Deserialize)]
 struct LuaCode {
@@ -41,8 +43,11 @@ async fn index(lua: web::Json<LuaCode>) -> impl Responder {
     }
 }
 
-pub fn service() -> impl HttpServiceFactory {
-    web::scope("/")
-        .route("", web::get().to(index))
-        .service(vk_bot::service())
+pub fn configure(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+ web::resource("/")
+            .route(web::get().to(index))
+    ).service(
+        web::scope("/bot").configure(vk_bot::configure)
+    );
 }

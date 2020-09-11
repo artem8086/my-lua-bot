@@ -1,6 +1,7 @@
 use actix_web::{web, HttpResponse, Responder};
 use serde::{Serialize, Deserialize};
 use actix_web::dev::HttpServiceFactory;
+use actix_web::web::Data;
 
 #[derive(Deserialize, Clone)]
 pub struct VkConfig {
@@ -11,16 +12,18 @@ pub struct VkConfig {
 #[derive(Deserialize)]
 struct VkStruct {
     #[serde(rename = "type")]
-    type_request: String,
-    group_id: String,
-    secret: String
+    type_request: Option<String>,
+    group_id: Option<String>,
+    secret: Option<String>
 }
 
 async fn index(vk_obj: web::Json<VkStruct>, data: web::Data<crate::AppData>) -> impl Responder {
     HttpResponse::Ok().body(&data.config.vk.confirm_key)
 }
 
-pub fn service() -> impl HttpServiceFactory {
-    web::scope("bot/vk")
-        .route("", web::post().to(index))
+pub fn configure(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::resource("/vk")
+            .route(web::post().to(index))
+    );
 }
