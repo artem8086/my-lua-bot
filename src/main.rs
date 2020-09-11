@@ -1,34 +1,20 @@
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
-use serde::Deserialize;
-
-use std::env;
-
+mod routes;
 mod lua;
 mod config;
 
+use actix_web::{web, App, HttpServer};
+
+use std::env;
+
 use self::config::AppConfig;
 
-struct AppData {
+pub struct AppData {
     config: AppConfig
 }
 
 impl AppData {
     fn new(config: AppConfig) -> AppData {
         AppData { config }
-    }
-}
-
-#[derive(Deserialize)]
-struct LuaCode {
-    code: String
-}
-
-async fn index(lua: web::Json<LuaCode>) -> impl Responder {
-    let result = lua::exec(&lua.code);
-    if result.have_error() {
-        HttpResponse::BadRequest().json(result)
-    } else {
-        HttpResponse::Ok().json(result)
     }
 }
 
@@ -51,7 +37,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(app_data.clone())
-            .route("/", web::get().to(index))
+            .service(routes::service())
     })
         .bind(format!("0.0.0.0:{}", port))?
         .run()

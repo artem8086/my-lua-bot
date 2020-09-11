@@ -1,21 +1,6 @@
 use rlua::Lua;
-use serde::Serialize;
 
-#[derive(Serialize)]
-pub struct LuaResult  {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    result: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    error: Option<String>
-}
-
-impl LuaResult {
-    pub fn have_error(&self) -> bool {
-        self.result.is_none()
-    }
-}
-
-pub fn exec(lua_code: &str) -> LuaResult {
+pub fn exec(lua_code: &str) -> Result<String, String> {
     let lua = Lua::new();
     let mut result = String::new();
     let mut error = false;
@@ -32,9 +17,9 @@ pub fn exec(lua_code: &str) -> LuaResult {
         }
     });
 
-    if !error {
-        LuaResult { result: Some(result), error: None }
+    if error {
+        Err(result)
     } else {
-        LuaResult { result: None, error: Some(result) }
+        Ok(result)
     }
 }
