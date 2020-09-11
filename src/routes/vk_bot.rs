@@ -18,7 +18,9 @@ struct VkStruct {
 }
 
 async fn index(vk_obj: web::Json<VkStruct>, data: web::Data<crate::AppData>) -> impl Responder {
-    HttpResponse::Ok().body(&data.config.vk.confirm_key)
+    HttpResponse::Ok()
+        .header("Content-Type", "text/plain")
+        .body(&data.config.vk.confirm_key)
 }
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
